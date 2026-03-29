@@ -1,0 +1,58 @@
+package net.mrwooly357.wool_commons.util.codec.custom;
+
+import net.mrwooly357.wool_commons.util.codec.Codec;
+import net.mrwooly357.wool_commons.util.codec.Fields;
+import net.mrwooly357.wool_commons.util.codec.operations.CodecOperations;
+import net.mrwooly357.wool_commons.util.codec.DataResult;
+import net.mrwooly357.wool_commons.util.codec.FieldCodec;
+
+import java.util.*;
+import java.util.function.BiFunction;
+
+public record Group2Codec<A1, A2, O>(FieldCodec<A1, O> field1, FieldCodec<A2, O> field2, BiFunction<? super A1, ? super A2, ? extends O> constructor) implements Codec<O> {
+
+
+    @Override
+    public <R> DataResult<R> encode(CodecOperations<R> operations, O input) {
+        Fields<R> fields = operations.usesStringFieldIds() ? new Fields.MapLike<>(new LinkedHashMap<>()) : new Fields.ListLike<>(new ArrayList<>());
+        field1.encode(operations, input, fields);
+        field2.encode(operations, input, fields);
+
+        return fields.encode(operations);
+    }
+
+    @Override
+    public <R> DataResult<O> decode(CodecOperations<R> operations, R input) {
+        Fields<R> fields;
+
+        if (operations.usesStringFieldIds()) {
+            DataResult<Map<String, R>> map = operations.decodeMap(input, operations::decodeString, DataResult.Success::new);
+
+            if (map.isSuccess())
+                fields = new Fields.MapLike<>(map.getOrThrow());
+            else
+                return new DataResult.Error<>("Failed to decode " + input + "!", new IllegalArgumentException());
+        } else {
+            DataResult<Collection<R>> list = operations.decodeCollection(input, DataResult.Success::new);
+
+            if (list.isSuccess())
+                fields = new Fields.ListLike<>((List<R>) list.getOrThrow());
+            else
+                return new DataResult.Error<>("Failed to decode " + input + "!", new IllegalArgumentException());
+        }
+
+        DataResult<A1> f1 = field1.decode(operations, fields);
+        DataResult<A2> f2 = field2.decode(operations, fields);
+
+        return f1.isSuccess() && f2.isSuccess()
+                ? new DataResult.Success<>(constructor.apply(f1.getOrThrow(), f2.getOrThrow()))
+                : new DataResult.Error<>("Failed to decode " + input + "!", new IllegalArgumentException());
+    }
+
+    @Override
+    public String toString() {
+        return "Group2Codec[field_1: " + field1
+                + ", field_2: " + field2
+                + ", constructor: " + constructor + "]";
+    }
+}
