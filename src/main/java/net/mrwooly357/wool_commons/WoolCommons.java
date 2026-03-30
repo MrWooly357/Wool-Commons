@@ -11,10 +11,16 @@ public final class WoolCommons {
 
     WoolCommons() {}
 
+
+    public static void initialize() {
+        Main.main();
+    }
+
     static {
         FilePath.RUN.createDirectories();
         LATEST_LOG.deleteIfExists();
         LOGGER = createLatestLogLogger(NAMESPACE);
+        LOGGER.info("Wool Commons initialized!");
     }
 
     public static WoolCommons getInstance() {
