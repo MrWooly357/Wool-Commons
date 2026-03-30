@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'idea'
     id 'maven-publish'
 }
 
@@ -12,10 +13,21 @@ java {
     }
 }
 
+idea {
+    module {
+        excludeDirs += file('run')
+    }
+}
+
 sourceSets {
     main {
         resources {
-            srcDirs += 'src/main/generated'
+            srcDirs += file('src/main/generated')
+        }
+    }
+    test {
+        resources {
+            srcDirs += file('src/test/generated')
         }
     }
 }
