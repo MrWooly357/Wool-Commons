@@ -22,7 +22,7 @@ public class Logger {
     private final Map<String, Logger> subs = new ConcurrentHashMap<>();
 
     public Logger(String id, FilePath path) {
-        this(id, false, path.writer(StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.SYNC));
+        this(id, false, path.createWriter(StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.SYNC));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (!sub)
@@ -62,7 +62,7 @@ public class Logger {
         }
     }
 
-    public Logger sub(String id) {
+    public Logger getSub(String id) {
         return subs.computeIfAbsent(id, s -> new Logger(this.id + ":" + s, true, log));
     }
 

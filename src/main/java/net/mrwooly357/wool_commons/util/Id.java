@@ -40,19 +40,19 @@ public final class Id {
             throw new IllegalArgumentException("Id's namespace and path can only consist of " + ALLOWED_SYMBOLS + " and cannot be blank!");
     }
 
-    public String namespace() {
+    public String getNamespace() {
         return namespace;
     }
 
-    public String path() {
+    public String getPath() {
         return path;
     }
 
-    public Id prefixed(String prefix) {
+    public Id withPrefixed(String prefix) {
         return of(namespace, prefix + path);
     }
 
-    public Id suffixed(String suffix) {
+    public Id withSuffixed(String suffix) {
         return of(namespace, path + suffix);
     }
 

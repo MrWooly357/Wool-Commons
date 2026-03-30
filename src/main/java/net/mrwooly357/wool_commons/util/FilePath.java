@@ -33,7 +33,7 @@ public record FilePath(Path path) {
         return Files.isDirectory(path, options);
     }
 
-    public FilePath name() {
+    public FilePath getName() {
         return new FilePath(path.getFileName());
     }
 
@@ -41,7 +41,7 @@ public record FilePath(Path path) {
         return path.endsWith(suffix);
     }
 
-    public FilePath parent() {
+    public FilePath getParent() {
         return new FilePath(path.getParent());
     }
 
@@ -53,7 +53,7 @@ public record FilePath(Path path) {
         return new FilePath(path.resolve(other.path));
     }
 
-    public BufferedWriter writer(OpenOption... options) {
+    public BufferedWriter createWriter(OpenOption... options) {
         try {
             return Files.newBufferedWriter(path, options);
         } catch (IOException e) {
@@ -61,7 +61,7 @@ public record FilePath(Path path) {
         }
     }
 
-    public BufferedReader reader() {
+    public BufferedReader createReader() {
         try {
             return Files.newBufferedReader(path);
         } catch (IOException e) {
@@ -69,7 +69,7 @@ public record FilePath(Path path) {
         }
     }
 
-    public BufferedOutputStream outputStream(OpenOption... options) {
+    public BufferedOutputStream createOutputStream(OpenOption... options) {
         try {
             return new BufferedOutputStream(Files.newOutputStream(path, options));
         } catch (IOException e) {
@@ -77,7 +77,7 @@ public record FilePath(Path path) {
         }
     }
 
-    public BufferedInputStream inputStream(OpenOption... options) {
+    public BufferedInputStream createInputStream(OpenOption... options) {
         try {
             return new BufferedInputStream(Files.newInputStream(path, options));
         } catch (IOException e) {
