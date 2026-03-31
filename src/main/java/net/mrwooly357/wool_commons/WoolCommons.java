@@ -30,6 +30,6 @@ public final class WoolCommons {
     }
 
     public static Logger createLatestLogLogger(String id) {
-        return new Logger(id, LATEST_LOG);
+        return new Logger(id, LATEST_LOG, true);
     }
 }
