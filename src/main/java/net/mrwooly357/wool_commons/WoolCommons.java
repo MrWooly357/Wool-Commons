@@ -18,7 +18,7 @@ public final class WoolCommons {
         FilePath.RUN.createDirectories();
         LATEST_LOG.deleteIfExists();
         LOGGER = createLatestLogLogger(NAMESPACE);
-        LOGGER.info("Wool Commons initialised!");
+        LOGGER.info("Wool Commons initialised!", Logger.Formatting.timeAndType(Logger.Formatting.CYAN, Logger.Formatting.BRIGHT_GREEN));
     }
 
     public static WoolCommons getInstance() {
