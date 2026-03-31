@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Logger {
+public final class Logger {
 
     private static final Map<FilePath, BufferedWriter> LOGS = new ConcurrentHashMap<>();
     public static final String INFO_TYPE = "info";
@@ -50,12 +50,36 @@ public class Logger {
         log(INFO_TYPE, message);
     }
 
+    public void infoFormatted(String message) {
+        info(message, Formatting.INFO);
+    }
+
+    public void info(String message, Formatting formatting) {
+        log(INFO_TYPE, message, formatting);
+    }
+
     public void warning(String message) {
         log(WARNING_TYPE, message);
     }
 
+    public void warningFormatted(String message) {
+        warning(message, Formatting.WARNING);
+    }
+
+    public void warning(String message, Formatting formatting) {
+        log(WARNING_TYPE, message, formatting);
+    }
+
     public void error(String message) {
         log(ERROR_TYPE, message);
+    }
+
+    public void errorFormatted(String message) {
+        error(message, Formatting.ERROR);
+    }
+
+    public void error(String message, Formatting formatting) {
+        log(ERROR_TYPE, message, formatting);
     }
 
     public void log(String type, String message) {
@@ -70,18 +94,6 @@ public class Logger {
         } catch (IOException e) {
             throw new RuntimeException("Failed to log " + type + " " + message + " " + this + "!", e);
         }
-    }
-
-    public void info(String message, Formatting formatting) {
-        log(INFO_TYPE, message, formatting);
-    }
-
-    public void warning(String message, Formatting formatting) {
-        log(WARNING_TYPE, message, formatting);
-    }
-
-    public void error(String message, Formatting formatting) {
-        log(ERROR_TYPE, message, formatting);
     }
 
     public void log(String type, String message, Formatting formatting) {
@@ -174,6 +186,9 @@ public class Logger {
         public static final String BRIGHT_BACKGROUND_MAGENTA = "\u001B[105m";
         public static final String BRIGHT_BACKGROUND_CYAN = "\u001B[106m";
         public static final String BRIGHT_BACKGROUND_WHITE = "\u001B[107m";
+        public static final Formatting INFO = timeAndType(CYAN, BRIGHT_GREEN);
+        public static final Formatting WARNING = timeAndType(CYAN, YELLOW);
+        public static final Formatting ERROR = timeAndType(CYAN, RED);
 
 
         public static Formatting time(String formatting) {
