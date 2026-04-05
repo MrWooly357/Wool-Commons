@@ -13,6 +13,14 @@ import java.util.stream.Stream;
 public interface Registry<F extends RegisteredFeature<F>> extends Iterable<F> {
 
 
+    @SuppressWarnings("unchecked")
+    default Codec<F> createFeatureCodec() {
+        return Key.CODEC.map(
+                Functions.identified(RegisteredFeature::getKey, "F", "Registry.Key<F>"),
+                Functions.identified(key -> get((Key<? extends F>) key).orElseThrow(), "Registry.Key<F>", "F")
+        );
+    }
+
     Optional<F> get(Key<? extends F> key);
 
     Stream<F> stream();

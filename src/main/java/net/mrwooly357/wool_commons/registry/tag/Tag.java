@@ -13,8 +13,8 @@ public final class Tag<F extends RegisteredFeature<F>> {
     @SuppressWarnings("unchecked")
     public static final Codec<Tag<?>> CODEC = Codec.set(Registry.Key.CODEC, Set::copyOf)
             .map(
-                    (Function<? super Tag<?>, ? extends Set<Registry.Key<?>>>) Functions.identified(tag -> ((Tag<?>) tag).keys, "Tag", "Set"),
-                    Functions.identified(Tag::new, "Set", "Tag")
+                    (Function<? super Tag<?>, ? extends Set<Registry.Key<?>>>) Functions.identified(tag -> ((Tag<?>) tag).keys, "Tag<F>", "Set<F>"),
+                    Functions.identified(Tag::new, "Set<F>", "Tag<F>")
             );
 
     private final Set<Registry.Key<F>> keys;
