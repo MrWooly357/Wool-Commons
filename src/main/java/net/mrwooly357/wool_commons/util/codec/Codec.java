@@ -37,18 +37,6 @@ public interface Codec<A> extends Encoder<A>, Decoder<A> {
         return new EitherCodec<>(Encoder.either(leftCodec, rightCodec), Decoder.either(leftCodec, rightCodec));
     }
 
-    static <E> CollectionCodec<E> collection(Codec<E> valueCodec) {
-        return new CollectionCodec<>(Encoder.collection(valueCodec), Decoder.collection(valueCodec));
-    }
-
-    static <E> MappedCodec<Collection<E>, List<E>> list(Codec<E> valueCodec, Function<? super Collection<E>, ? extends List<E>> constructor) {
-        return new MappedCodec<>(Encoder.list(valueCodec), Decoder.list(valueCodec, constructor));
-    }
-
-    static <E> MappedCodec<Collection<E>, Set<E>> set(Codec<E> valueCodec, Function<? super Collection<E>, ? extends Set<E>> constructor) {
-        return new MappedCodec<>(Encoder.set(valueCodec), Decoder.set(valueCodec, constructor));
-    }
-
     static <K, V> MapCodec<K, V> map(Codec<K> keyCodec, Codec<V> valueCodec) {
         return new MapCodec<>(Encoder.map(keyCodec, valueCodec), Decoder.map(keyCodec, valueCodec));
     }
@@ -86,19 +74,35 @@ public interface Codec<A> extends Encoder<A>, Decoder<A> {
         return new CodecGroups.G4<>(field1.build(0), field2.build(1), field3.build(2), field4.build(3));
     }
 
+    default <O> DispatchedCodec<A, O> dispatched(Function<? super O, ? extends A> typeGetter, Function<? super A, ? extends Codec<? extends O>> valueCodec) {
+        return new DispatchedCodec<>(Encoder.dispatched(this, typeGetter, valueCodec), Decoder.dispatched(this, valueCodec));
+    }
+
+    default CollectionCodec<A> collection() {
+        return new CollectionCodec<>(Encoder.collection(this), Decoder.collection(this));
+    }
+
+    default MappedCodec<Collection<A>, List<A>> list(Function<? super Collection<A>, ? extends List<A>> constructor) {
+        return new MappedCodec<>(Encoder.list(this), Decoder.list(this, constructor));
+    }
+
+    default MappedCodec<Collection<A>, Set<A>> set(Function<? super Collection<A>, ? extends Set<A>> constructor) {
+        return new MappedCodec<>(Encoder.set(this), Decoder.set(this, constructor));
+    }
+
+    default <O> MappedCodec<A, O> map(Function<? super O, ? extends A> from, Function<? super A, ? extends O> to) {
+        return new MappedCodec<>(Encoder.mapTo(this, from), Decoder.mapTo(this, to));
+    }
+
+    default ValidatedCodec<A> validated(Predicate<? super A> predicate, Supplier<String> message) {
+        return new ValidatedCodec<>(Encoder.validated(this, predicate, message), Decoder.validated(this, predicate, message));
+    }
+
     default <O> FieldCodec.Builder<A, O> fieldOf(String id, Function<O, A> getter) {
         return new FieldCodec.Builder<>(id, this, getter);
     }
 
     default <O> FieldCodec.Optional.Builder<A, O> optionalFieldOf(String id, Function<O, A> getter, A fallback) {
         return new FieldCodec.Optional.Builder<>(id, this, getter, fallback);
-    }
-
-    default <O> MappedCodec<A, O> map(Function<? super O, ? extends A> from, Function<? super A, ? extends O> to) {
-        return new MappedCodec<>(mapEncoder(from), mapDecoder(to));
-    }
-
-    default ValidatedCodec<A> validated(Predicate<? super A> predicate, Supplier<String> message) {
-        return new ValidatedCodec<>(validatedEncoder(predicate, message), validatedDecoder(predicate, message));
     }
 }

@@ -275,7 +275,7 @@ public class TextCodecOperations implements CodecOperations<String> {
         String s = input.trim();
 
         if (!s.startsWith("{") || !s.endsWith("}"))
-            return new DataResult.Error<>("Malformed text map " + input + "!", new IllegalArgumentException());
+            return new DataResult.Error<>("Malformed text mapTo " + input + "!", new IllegalArgumentException());
         else {
             String content = s.substring(1, s.length() - 1).trim();
 

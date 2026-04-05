@@ -3,6 +3,7 @@ package net.mrwooly357.wool_commons.util.codec.decoder;
 import net.mrwooly357.wool_commons.util.codec.StringIdentifiable;
 import net.mrwooly357.wool_commons.util.codec.operations.CodecOperations;
 import net.mrwooly357.wool_commons.util.codec.DataResult;
+import net.mrwooly357.wool_commons.util.function.Functions;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,16 +36,25 @@ public interface Decoder<A> {
         return new EitherDecoder<>(leftDecoder, rightDecoder);
     }
 
+    @SuppressWarnings("unchecked")
+    static <T, A> DispatchedDecoder<T, A> dispatched(Decoder<T> typeDecoder, Function<? super T, ? extends Decoder<? extends A>> valueDecoder) {
+        return new DispatchedDecoder<>(typeDecoder, Functions.identified(t -> (Decoder<A>) valueDecoder.apply(t), "T", "Decoder<A>"));
+    }
+
+    static <A> RecursiveDecoder<A> recursive(Function<? super RecursiveDecoder<A>, ? extends Decoder<A>> wrapped) {
+        return new RecursiveDecoder<>(Functions.identified(wrapped::apply, "RecursiveEncoder<A>", "Decoder<A>"));
+    }
+
     static <E> CollectionDecoder<E> collection(Decoder<E> valueDecoder) {
         return new CollectionDecoder<>(valueDecoder);
     }
 
     static <E> MappedDecoder<Collection<E>, List<E>> list(Decoder<E> valueDecoder, Function<? super Collection<E>, ? extends List<E>> constructor) {
-        return collection(valueDecoder).mapDecoder(constructor);
+        return mapTo(collection(valueDecoder), Functions.identified(constructor::apply, "Collection<E>", "List<E>"));
     }
 
     static <E> MappedDecoder<Collection<E>, Set<E>> set(Decoder<E> valueDecoder, Function<? super Collection<E>, ? extends Set<E>> constructor) {
-        return collection(valueDecoder).mapDecoder(constructor);
+        return mapTo(collection(valueDecoder), Functions.identified(constructor::apply, "Collection<E>", "Set<E>"));
     }
 
     static <K, V> MapDecoder<K, V> map(Decoder<K> keyDecoder, Decoder<V> valueDecoder) {
@@ -55,21 +65,17 @@ public interface Decoder<A> {
         return new BoundedMapDecoder<>(keyDecoder, valueDecoder::apply);
     }
 
-    static <A> RecursiveDecoder<A> recursive(Function<? super RecursiveDecoder<A>, ? extends Decoder<A>> wrapped) {
-        return new RecursiveDecoder<>(wrapped::apply);
+    static <E extends Enum<E> & StringIdentifiable> EnumDecoder<E> forEnum(Function<? super String, ? extends E> mapper) {
+        return new EnumDecoder<>(Functions.identified(mapper::apply, "String", "E"));
     }
 
-    static <E extends Enum<E> & StringIdentifiable> EnumDecoder<E> forEnum(Function<? super String, ? extends E> mapper) {
-        return new EnumDecoder<>(mapper::apply);
+    static <A, O> MappedDecoder<A, O> mapTo(Decoder<A> encoder, Function<? super A, ? extends O> mapper) {
+        return new MappedDecoder<>(encoder, mapper);
+    }
+
+    static <A> ValidatedDecoder<A> validated(Decoder<A> encoder, Predicate<? super A> predicate, Supplier<String> message) {
+        return new ValidatedDecoder<>(encoder, predicate, message);
     }
 
     <R> DataResult<A> decode(CodecOperations<R> operations, R input);
-
-    default <O> MappedDecoder<A, O> mapDecoder(Function<? super A, ? extends O> mapper) {
-        return new MappedDecoder<>(this, mapper);
-    }
-
-    default ValidatedDecoder<A> validatedDecoder(Predicate<? super A> predicate, Supplier<String> message) {
-        return new ValidatedDecoder<>(this, predicate, message);
-    }
 }

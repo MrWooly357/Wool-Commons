@@ -167,7 +167,7 @@ public class BinaryCodecOperations implements CodecOperations<byte[]> {
 
             return new DataResult.Success<>(result);
         } catch (Exception e) {
-            return new DataResult.Error<>("Failed to encode map " + m + "!", e);
+            return new DataResult.Error<>("Failed to encode mapTo " + m + "!", e);
         }
     }
 
