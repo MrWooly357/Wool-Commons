@@ -1,5 +1,9 @@
 package net.mrwooly357.wool_commons.util;
 
+import net.mrwooly357.wool_commons.util.codec.Codec;
+import net.mrwooly357.wool_commons.util.codec.Codecs;
+import net.mrwooly357.wool_commons.util.function.Functions;
+
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -9,6 +13,8 @@ import java.util.stream.Stream;
 
 public record FilePath(Path path) {
 
+    public static final Codec<FilePath> CODEC = Codecs.STRING
+            .map(Functions.identified(FilePath::toString, FilePath.class, String.class), Functions.identified(FilePath::new, String.class, FilePath.class));
     public static final FilePath HOME = new FilePath(System.getProperty("user.dir"));
     public static final FilePath RUN = HOME.resolve("run");
 
