@@ -3,7 +3,6 @@ package net.mrwooly357.wool_commons.util.codec.encoder;
 import net.mrwooly357.wool_commons.util.codec.StringIdentifiable;
 import net.mrwooly357.wool_commons.util.codec.operations.CodecOperations;
 import net.mrwooly357.wool_commons.util.codec.DataResult;
-import net.mrwooly357.wool_commons.util.codec.encoder.custom.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -45,6 +44,10 @@ public interface Encoder<A> {
 
     static <K, V> MapEncoder<K, V> map(Encoder<K> keyEncoder, Encoder<V> valueEncoder) {
         return new MapEncoder<>(keyEncoder, valueEncoder);
+    }
+
+    static <K, V> BoundedMapEncoder<K, V> map(Encoder<K> keyEncoder, Function<? super K, ? extends Encoder<V>> valueEncoder) {
+        return new BoundedMapEncoder<>(keyEncoder, valueEncoder::apply);
     }
 
     static <A> RecursiveEncoder<A> recursive(Function<? super RecursiveEncoder<A>, ? extends Encoder<A>> wrapped) {

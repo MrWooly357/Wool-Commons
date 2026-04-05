@@ -5,6 +5,7 @@ import net.mrwooly357.wool_commons.util.codec.DataResult;
 import net.mrwooly357.wool_commons.util.codec.operations.CodecOperations;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -118,7 +119,7 @@ public class TextCodecOperations implements CodecOperations<String> {
     }
 
     @Override
-    public <K, V> DataResult<String> encodeMap(Map<K, V> m, Function<? super K, ? extends DataResult<String>> keyEncoder, Function<? super V, ? extends DataResult<String>> valueEncoder) {
+    public <K, V> DataResult<String> encodeMap(Map<K, V> m, Function<? super K, ? extends DataResult<String>> keyEncoder, BiFunction<? super K, ? super V, ? extends DataResult<String>> valueEncoder) {
         if (m.isEmpty())
             return new DataResult.Success<>("{}");
         else {
@@ -127,7 +128,11 @@ public class TextCodecOperations implements CodecOperations<String> {
 
             try {
                 return new DataResult.Success<>("{" + m.entrySet().stream()
-                        .map(entry -> new Pair<>(keyEncoder.apply(entry.getKey()), valueEncoder.apply(entry.getValue())))
+                        .map(entry -> {
+                            K key = entry.getKey();
+
+                            return new Pair<>(keyEncoder.apply(key), valueEncoder.apply(key, entry.getValue()));
+                        })
                         .filter(pair -> pair.first().isSuccess() && pair.second().isSuccess())
                         .map(pair -> {
                             String key = pair.first().getOrThrow();
@@ -266,7 +271,7 @@ public class TextCodecOperations implements CodecOperations<String> {
     }
 
     @Override
-    public <K, V> DataResult<Map<K, V>> decodeMap(String input, Function<? super String, ? extends DataResult<K>> keyDecoder, Function<? super String, ? extends DataResult<V>> valueDecoder) {
+    public <K, V> DataResult<Map<K, V>> decodeMap(String input, Function<? super String, ? extends DataResult<K>> keyDecoder, BiFunction<? super K, ? super String, ? extends DataResult<V>> valueDecoder) {
         String s = input.trim();
 
         if (!s.startsWith("{") || !s.endsWith("}"))
@@ -283,10 +288,11 @@ public class TextCodecOperations implements CodecOperations<String> {
 
                     if (list.size() == 2) {
                         DataResult<K> key = keyDecoder.apply(list.getFirst().trim());
-                        DataResult<V> value = valueDecoder.apply(list.get(1).trim());
+                        K k = key.getOrThrow();
+                        DataResult<V> value = valueDecoder.apply(k, list.get(1).trim());
 
                         if (key.isSuccess() && value.isSuccess())
-                            result.put(key.getOrThrow(), value.getOrThrow());
+                            result.put(k, value.getOrThrow());
                     }
                 });
 

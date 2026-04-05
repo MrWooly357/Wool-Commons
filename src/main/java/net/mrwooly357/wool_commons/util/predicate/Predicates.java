@@ -1,8 +1,5 @@
 package net.mrwooly357.wool_commons.util.predicate;
 
-import net.mrwooly357.wool_commons.util.predicate.custom.IdentifiedBiPredicate;
-import net.mrwooly357.wool_commons.util.predicate.custom.IdentifiedPredicate;
-
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 

@@ -1,6 +1,5 @@
 package net.mrwooly357.wool_commons.util.codec;
 
-import net.mrwooly357.wool_commons.util.codec.custom.*;
 import net.mrwooly357.wool_commons.util.codec.decoder.Decoder;
 import net.mrwooly357.wool_commons.util.codec.encoder.Encoder;
 
@@ -52,6 +51,10 @@ public interface Codec<A> extends Encoder<A>, Decoder<A> {
 
     static <K, V> MapCodec<K, V> map(Codec<K> keyCodec, Codec<V> valueCodec) {
         return new MapCodec<>(Encoder.map(keyCodec, valueCodec), Decoder.map(keyCodec, valueCodec));
+    }
+
+    static <K, V> BoundedMapCodec<K, V> map(Codec<K> keyCodec, Function<? super K, ? extends Codec<V>> valueCodec) {
+        return new BoundedMapCodec<>(Encoder.map(keyCodec, valueCodec), Decoder.map(keyCodec, valueCodec));
     }
 
     static <A> RecursiveCodec<A> recursive(Function<? super RecursiveCodec<A>, ? extends Codec<A>> wrapped) {

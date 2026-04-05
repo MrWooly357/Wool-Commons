@@ -1,8 +1,5 @@
 package net.mrwooly357.wool_commons.util.function;
 
-import net.mrwooly357.wool_commons.util.function.custom.IdentifiedBiFunction;
-import net.mrwooly357.wool_commons.util.function.custom.IdentifiedFunction;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 

@@ -1,8 +1,5 @@
 package net.mrwooly357.wool_commons.util.consumer;
 
-import net.mrwooly357.wool_commons.util.consumer.custom.IdentifiedBiConsumer;
-import net.mrwooly357.wool_commons.util.consumer.custom.IdentifiedConsumer;
-
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 

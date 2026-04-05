@@ -3,7 +3,6 @@ package net.mrwooly357.wool_commons.util.codec.decoder;
 import net.mrwooly357.wool_commons.util.codec.StringIdentifiable;
 import net.mrwooly357.wool_commons.util.codec.operations.CodecOperations;
 import net.mrwooly357.wool_commons.util.codec.DataResult;
-import net.mrwooly357.wool_commons.util.codec.decoder.custom.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,6 +49,10 @@ public interface Decoder<A> {
 
     static <K, V> MapDecoder<K, V> map(Decoder<K> keyDecoder, Decoder<V> valueDecoder) {
         return new MapDecoder<>(keyDecoder, valueDecoder);
+    }
+
+    static <K, V> BoundedMapDecoder<K, V> map(Decoder<K> keyDecoder, Function<? super K, ? extends Decoder<V>> valueDecoder) {
+        return new BoundedMapDecoder<>(keyDecoder, valueDecoder::apply);
     }
 
     static <A> RecursiveDecoder<A> recursive(Function<? super RecursiveDecoder<A>, ? extends Decoder<A>> wrapped) {

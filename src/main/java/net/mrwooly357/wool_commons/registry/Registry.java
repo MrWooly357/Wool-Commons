@@ -4,7 +4,7 @@ import net.mrwooly357.wool_commons.util.Id;
 import net.mrwooly357.wool_commons.util.codec.Codec;
 import net.mrwooly357.wool_commons.util.codec.Codecs;
 import net.mrwooly357.wool_commons.util.function.Functions;
-import net.mrwooly357.wool_commons.util.iterator.custom.ImmutableIterator;
+import net.mrwooly357.wool_commons.util.iterator.ImmutableIterator;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

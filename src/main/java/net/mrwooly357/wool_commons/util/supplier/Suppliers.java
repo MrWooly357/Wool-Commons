@@ -1,8 +1,5 @@
 package net.mrwooly357.wool_commons.util.supplier;
 
-import net.mrwooly357.wool_commons.util.supplier.custom.IdentifiedSupplier;
-import net.mrwooly357.wool_commons.util.supplier.custom.MemoizingSupplier;
-
 import java.util.function.Supplier;
 
 public final class Suppliers {

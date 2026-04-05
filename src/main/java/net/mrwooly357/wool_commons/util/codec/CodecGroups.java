@@ -1,11 +1,7 @@
 package net.mrwooly357.wool_commons.util.codec;
 
-import net.mrwooly357.wool_commons.util.codec.custom.Group1Codec;
-import net.mrwooly357.wool_commons.util.codec.custom.Group2Codec;
-import net.mrwooly357.wool_commons.util.codec.custom.Group3Codec;
-import net.mrwooly357.wool_commons.util.codec.custom.Group4Codec;
-import net.mrwooly357.wool_commons.util.function.custom.QuadFunction;
-import net.mrwooly357.wool_commons.util.function.custom.TriFunction;
+import net.mrwooly357.wool_commons.util.function.QuadFunction;
+import net.mrwooly357.wool_commons.util.function.TriFunction;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;

@@ -6,6 +6,7 @@ import net.mrwooly357.wool_commons.util.codec.operations.CodecOperations;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class BinaryCodecOperations implements CodecOperations<byte[]> {
@@ -138,15 +139,16 @@ public class BinaryCodecOperations implements CodecOperations<byte[]> {
     }
 
     @Override
-    public <K, V> DataResult<byte[]> encodeMap(Map<K, V> m, Function<? super K, ? extends DataResult<byte[]>> keyEncoder, Function<? super V, ? extends DataResult<byte[]>> valueEncoder) {
+    public <K, V> DataResult<byte[]> encodeMap(Map<K, V> m, Function<? super K, ? extends DataResult<byte[]>> keyEncoder, BiFunction<? super K, ? super V, ? extends DataResult<byte[]>> valueEncoder) {
         try {
             int totalSize = 4;
             int size = m.size();
             List<byte[]> encoded = new ArrayList<>();
 
             for (Map.Entry<K, V> entry : m.entrySet()) {
-                byte[] key = keyEncoder.apply(entry.getKey()).getOrThrow();
-                byte[] value = valueEncoder.apply(entry.getValue()).getOrThrow();
+                K k = entry.getKey();
+                byte[] key = keyEncoder.apply(k).getOrThrow();
+                byte[] value = valueEncoder.apply(k, entry.getValue()).getOrThrow();
                 encoded.add(key);
                 encoded.add(value);
                 totalSize += key.length + value.length + 8;
@@ -299,7 +301,7 @@ public class BinaryCodecOperations implements CodecOperations<byte[]> {
     }
 
     @Override
-    public <K, V> DataResult<Map<K, V>> decodeMap(byte[] input, Function<? super byte[], ? extends DataResult<K>> keyDecoder, Function<? super byte[], ? extends DataResult<V>> valueDecoder) {
+    public <K, V> DataResult<Map<K, V>> decodeMap(byte[] input, Function<? super byte[], ? extends DataResult<K>> keyDecoder, BiFunction<? super K, ? super byte[], ? extends DataResult<V>> valueDecoder) {
         int size = bytesToInt(input);
         Map<K, V> map = new LinkedHashMap<>();
         int offset = 4;
@@ -318,7 +320,8 @@ public class BinaryCodecOperations implements CodecOperations<byte[]> {
             byte[] valueData = new byte[valueLength];
             System.arraycopy(input, offset, valueData, 0, valueLength);
             offset += valueLength;
-            map.put(keyDecoder.apply(keyData).getOrThrow(), valueDecoder.apply(valueData).getOrThrow());
+            K key = keyDecoder.apply(keyData).getOrThrow();
+            map.put(key, valueDecoder.apply(key, valueData).getOrThrow());
         }
 
         return new DataResult.Success<>(Map.copyOf(map));
