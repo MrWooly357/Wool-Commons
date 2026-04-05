@@ -110,10 +110,11 @@ public sealed interface Area {
                 case TRIANGLE, COMBINED -> other.intersects(this);
                 case CIRCLE -> {
                     Circle c = (Circle) other;
+                    Pos2F centre = c.centre;
 
                     yield c.contains(new Pos2F(
-                            Math.clamp(c.centre.x(), min.x(), max.x()),
-                            Math.clamp(c.centre.y(), min.y(), max.y())
+                            Math.clamp(centre.x(), min.x(), max.x()),
+                            Math.clamp(centre.y(), min.y(), max.y())
                     ));
                 }
             };
@@ -148,9 +149,15 @@ public sealed interface Area {
 
         @Override
         public boolean contains(Pos2F pos) {
-            float area = (-b.y() * c.x() + a.y() * (-b.x() + c.x()) + a.x() * (b.y() - c.y()) + b.x() * c.y());
-            float s = (a.y() * c.x() - a.x() * c.y() + (c.y() - a.y()) * pos.x() + (a.x() - c.x()) * pos.y());
-            float t = (a.x() * b.y() - a.y() * b.x() + (a.y() - b.y()) * pos.x() + (b.x() - a.x()) * pos.y());
+            float ax = a.x();
+            float ay = a.y();
+            float bx = b.x();
+            float by = b.y();
+            float cx = c.x();
+            float cy = c.y();
+            float area = (-by * cx + ay * (-bx + cx) + ax * (by - cy) + bx * cy);
+            float s = (ay * cx -ax * cy + (cy - ay) * pos.x() + (ax - cx) * pos.y());
+            float t = (ax * by - ay * bx + (ay - by) * pos.x() + (bx - ax) * pos.y());
 
             return area < 0.0F ? s <= 0.0F && t <= 0.0F && (s + t) >= area : s >= 0.0F && t >= 0.0F && (s + t) <= area;
         }
@@ -162,22 +169,36 @@ public sealed interface Area {
                 case RECTANGLE -> {
                     Rectangle r = (Rectangle) other;
 
-                    if (r.contains(a) || r.contains(b) || r.contains(c) || contains(new Pos2F((r.min.x() + r.max.x()) / 2.0F, (r.min.y() + r.max.y()) / 2.0F)))
+
+                    if (r.contains(a) || r.contains(b) || r.contains(c))
                         yield true;
-                    else
-                        yield segmentIntersectsRectangle(a, b, r)
-                                || segmentIntersectsRectangle(b, c, r)
-                                || segmentIntersectsRectangle(c, a, r);
+                    else {
+                        Pos2F min = r.min;
+                        Pos2F max = r.max;
+
+                        if (contains(new Pos2F((min.x() + max.x()) / 2.0F, (min.y() + max.y()) / 2.0F)))
+                            yield true;
+                        else
+                            yield segmentIntersectsRectangle(a, b, r)
+                                    || segmentIntersectsRectangle(b, c, r)
+                                    || segmentIntersectsRectangle(c, a, r);
+                    }
                 }
                 case TRIANGLE -> {
                     Triangle t = (Triangle) other;
+                    Pos2F ta = t.a;
 
-                    if (contains(t.a) || t.contains(a))
+                    if (contains(ta) || t.contains(a))
                         yield true;
-                    else
-                        yield segmentsIntersect(a, b, t.a, t.b) || segmentsIntersect(a, b, t.b, t.c) || segmentsIntersect(a, b, t.c, t.a)
-                                || segmentsIntersect(b, c, t.a, t.b) || segmentsIntersect(b, c, t.b, t.c) || segmentsIntersect(b, c, t.c, t.a)
-                                || segmentsIntersect(c, a, t.a, t.b) || segmentsIntersect(c, a, t.b, t.c) || segmentsIntersect(c, a, t.c, t.a);
+                    else {
+                        Pos2F tb = t.b;
+                        Pos2F tc = t.c;
+
+                        yield segmentsIntersect(a, b, ta, tb) || segmentsIntersect(a, b, tb, tc) || segmentsIntersect(a, b, tc, ta)
+                                || segmentsIntersect(b, c, ta, tb) || segmentsIntersect(b, c, tb, tc) || segmentsIntersect(b, c, tc, ta)
+                                || segmentsIntersect(c, a, ta, tb) || segmentsIntersect(c, a, tb, tc) || segmentsIntersect(c, a, tc, ta);
+                    }
+
                 }
                 case CIRCLE -> {
                     Circle c = (Circle) other;
@@ -270,7 +291,6 @@ public sealed interface Area {
         public boolean contains(Pos2F pos) {
             return centre.squaredDistanceTo(pos) <= radius * radius;
         }
-
 
         @Override
         public boolean intersects(Area other) {

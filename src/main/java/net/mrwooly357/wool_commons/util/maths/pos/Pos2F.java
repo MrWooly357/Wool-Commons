@@ -18,6 +18,10 @@ public record Pos2F(float x, float y) {
         return new Pos2F(x, y);
     }
 
+    public float distanceTo(Pos2F other) {
+        return (float) Math.sqrt(squaredDistanceTo(other));
+    }
+
     public float squaredDistanceTo(Pos2F other) {
         float dx = other.x - x;
         float dy = other.y - y;
